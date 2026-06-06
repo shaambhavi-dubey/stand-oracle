@@ -14,9 +14,9 @@ from core.engine import OracleEngine
 from core.visualizer import StandVisualizer
 
 # Page Setup Configurations
-st.set_page_config(page_title="JJBA Stand Oracle", page_icon="🔮", layout="centered")
-st.title("🔮 The Stand Arrow Chambers")
-st.caption("Discover your fighting spirit through RAG-driven vector profiling calculations.")
+st.set_page_config(page_title="JJBA Stand Oracle", page_icon="★", layout="centered")
+st.title("JoJo's Bizarre Adventure: Stand Oracle ★")
+st.caption("Discover your stand ><")
 
 # Initialize core states inside server memory trackers
 if "engine" not in st.session_state:
