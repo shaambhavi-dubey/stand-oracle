@@ -1,3 +1,5 @@
+# main.py
+
 import os
 import streamlit as st
 from dotenv import load_dotenv
@@ -13,8 +15,8 @@ from core.visualizer import StandVisualizer
 
 # Page Setup Configurations
 st.set_page_config(page_title="JJBA Stand Oracle", page_icon="🔮", layout="centered")
-st.title("Da Stand Oracle git ★")
-st.caption("Discover your stand by answering some questions!")
+st.title("🔮 The Stand Arrow Chambers")
+st.caption("Discover your fighting spirit through RAG-driven vector profiling calculations.")
 
 # Initialize core states inside server memory trackers
 if "engine" not in st.session_state:
@@ -53,7 +55,8 @@ if st.session_state.stage == "chat":
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.turn_count += 1
         
-        if st.session_state.turn_count >= 4:
+        # Process matching after exactly 6 conversational turns have completed
+        if st.session_state.turn_count >= 6:
             st.session_state.stage = "matching"
         else:
             with st.spinner("The Oracle ponders your words..."):
@@ -68,7 +71,7 @@ if st.session_state.stage == "chat":
         
         st.rerun()
 
-#rag matching sequence with vector database retrieval and LLM synthesis of final reveal narrative
+# RAG Integration Strategy State Execution Block
 if st.session_state.stage == "matching":
     with st.spinner("The Stand Arrow is reacting violently to your fighting spirit..."):
         try:
@@ -82,11 +85,9 @@ if st.session_state.stage == "matching":
             st.session_state.stage = "revealed"
             st.rerun()
         except Exception as e:
-            import traceback
             st.error(f"💥 Matching Algorithm Error: {str(e)}")
-            st.code(traceback.format_exc())  # ← add this line
 
-# final reveal state with visualizer and narrative prose done by openrouter llm
+# Presentation Layer: Structural Display Grid Screen Card
 if st.session_state.stage == "revealed":
     stand = st.session_state.matched_data
     
