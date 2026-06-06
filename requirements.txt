@@ -1,8 +1,11 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.2.1+cpu
+streamlit
 pandas
 openpyxl
+numpy
 faiss-cpu
 sentence-transformers
-anthropic
+matplotlib
+openai
 python-dotenv
-streamlit
-numpy
