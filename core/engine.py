@@ -28,7 +28,7 @@ class OracleEngine:
         )
         self.model_name = "meta-llama/llama-3.3-70b-instruct:free"
         
-        # 12 Diversified, direct behavioral profiling questions
+        # Streamlined 9 direct behavioral profiling questions
         self.question_pool = [
             {"text": "When backed into a corner, do you strike back instantly with raw force, or do you retreat to analyze?", "type": "combat"},
             {"text": "If you acquired a tool of absolute power, would you use it to protect order, or shatter it to create something new?", "type": "resolve"},
@@ -38,14 +38,11 @@ class OracleEngine:
             {"text": "When tracking a target, do you hunt them down aggressively out in the open, or set a silent trap in the shadows?", "type": "tactics"},
             {"text": "If a mission demands it, are you willing to sacrifice a critical asset to win, or will you risk failure to save everything?", "type": "moral"},
             {"text": "Do you perform at your best when under intense, immediate pressure, or when given ample time to plan?", "type": "moral"},
-            {"text": "In a duel, do you focus on completely overwhelming your opponent's guard, or outlasting them until they trip up?", "type": "combat"},
-            {"text": "When someone treats you with open injustice, do you demand immediate public retribution, or wait patiently for the perfect moment to strike back?", "type": "tactics"},
-            {"text": "Would you feel more fulfilled leaving behind a legacy as a revered protector of peace, or a feared force of nature?", "type": "resolve"},
-            {"text": "If caught in an intricate web of illusions, do you unleash absolute destructive power to tear it down, or use surgical precision to find the flaw?", "type": "combat"}
+            {"text": "In a duel, do you focus on completely overwhelming your opponent's guard, or outlasting them until they trip up?", "type": "combat"}
         ]
         
-        # Select exactly 6 random questions for this unique session execution flow
-        self.active_questions = random.sample(self.question_pool, 6)
+        # Select exactly 4 random questions for this session
+        self.active_questions = random.sample(self.question_pool, 4)
         
     def generate_next_question(self, chat_history):
         """Serves direct, short prompts instantly from the active session pool."""
@@ -65,30 +62,33 @@ class OracleEngine:
         base_scores = {"Destructive": 3, "Speed": 3, "Range": 3, "Stamina": 3, "Precision": 3, "Dev": 3}
         
         # Keyword scanners mapping semantic weights across profile parameters
-        if any(w in user_responses for w in ["strike", "force", "instantly", "now", "fist", "attack", "rage", "burning", "overwhelming", "tear it down", "retribution"]):
+        if any(w in user_responses for w in ["strike", "force", "instantly", "now", "fist", "attack", "rage", "burning", "overwhelming"]):
             base_scores["Destructive"] += 2
             base_scores["Speed"] += 1
-        if any(w in user_responses for w in ["retreat", "analyze", "wait", "back", "think", "shadow", "cold", "calculated", "trap", "plan", "flaw", "precision", "patiently"]):
+        if any(w in user_responses for w in ["retreat", "analyze", "wait", "back", "think", "shadow", "cold", "calculated", "trap", "plan"]):
             base_scores["Precision"] += 2
             base_scores["Range"] += 1
-        if any(w in user_responses for w in ["shatter", "new", "change", "destroy", "break", "complex", "specific", "feared", "nature"]):
+        if any(w in user_responses for w in ["shatter", "new", "change", "destroy", "break", "complex", "specific"]):
             base_scores["Dev"] += 2
             base_scores["Destructive"] += 1
-        if any(w in user_responses for w in ["protect", "order", "keep", "save", "defend", "outlast", "limit", "save everything", "peace", "revered"]):
+        if any(w in user_responses for w in ["protect", "order", "keep", "save", "defend", "outlast", "limit", "save everything"]):
             base_scores["Stamina"] += 2
             base_scores["Precision"] += 1
-        if any(w in user_responses for w in ["alone", "myself", "control", "solo", "own", "sacrifice", "unleash"]):
+        if any(w in user_responses for w in ["alone", "myself", "control", "solo", "own", "sacrifice"]):
             base_scores["Speed"] += 1
             base_scores["Precision"] += 1
-        if any(w in user_responses for w in ["team", "coordinate", "strategy", "group", "share", "risk", "web"]):
+        if any(w in user_responses for w in ["team", "coordinate", "strategy", "group", "share", "risk"]):
             base_scores["Range"] += 1
             base_scores["Dev"] += 1
+
+        # Capture raw user vocabulary to preserve distinct semantic profiles
+        raw_signature = " ".join([msg["content"] for msg in chat_history if msg["role"] == "user"])
 
         profile_summary = (
             f"Subject displays a structural configuration emphasizing a Destructive capacity of {base_scores['Destructive']}/5 "
             f"and tactical Speed of {base_scores['Speed']}/5. Tactical movement profile exhibits Range: {base_scores['Range']}/5, "
             f"Stamina: {base_scores['Stamina']}/5, Precision: {base_scores['Precision']}/5, and Development Potential: {base_scores['Dev']}/5. "
-            f"User's natural combat preference scales with vocabulary markers reflecting unique individual choices."
+            f"\n\nPsychological Vocabulary Signature: {raw_signature}"
         )
         return profile_summary
 

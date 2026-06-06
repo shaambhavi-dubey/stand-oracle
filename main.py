@@ -1,5 +1,3 @@
-# main.py
-
 import os
 import streamlit as st
 from dotenv import load_dotenv
@@ -14,8 +12,8 @@ from core.engine import OracleEngine
 from core.visualizer import StandVisualizer
 
 # Page Setup Configurations
-st.set_page_config(page_title="JJBA Stand Oracle", page_icon="★", layout="centered")
-st.title("JoJo's Bizarre Adventure: Stand Oracle ★")
+st.set_page_config(page_title="JJBA Stand Oracle", page_icon="🔮", layout="centered")
+st.title("Jojo's Bizarre Adventure Stand Oracle ★")
 st.caption("Discover your stand ><")
 
 # Initialize core states inside server memory trackers
@@ -55,8 +53,8 @@ if st.session_state.stage == "chat":
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.turn_count += 1
         
-        # Process matching after exactly 6 conversational turns have completed
-        if st.session_state.turn_count >= 6:
+        # Process matching after exactly 4 conversational turns have completed
+        if st.session_state.turn_count >= 4:
             st.session_state.stage = "matching"
         else:
             with st.spinner("The Oracle ponders your words..."):
