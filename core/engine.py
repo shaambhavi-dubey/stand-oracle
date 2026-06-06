@@ -55,40 +55,40 @@ class OracleEngine:
         return "Analysis complete. The Stand Arrow is initializing..."
 
     def update_hidden_profile(self, chat_history):
-        """Locally scores text responses against tactical dimensions to prepare the FAISS query text."""
+        """Compiles user vocabulary into descriptive prose that matches the Excel column concepts."""
         user_responses = " ".join([msg["content"] for msg in chat_history if msg["role"] == "user"]).lower()
         
-        # Internal Profile Matrix tracking: [Destructive, Speed, Range, Stamina, Precision, Dev]
-        base_scores = {"Destructive": 3, "Speed": 3, "Range": 3, "Stamina": 3, "Precision": 3, "Dev": 3}
+        # Accumulate traits using descriptive language matching your Excel database columns
+        combat_style = []
+        personality_traits = []
         
-        # Keyword scanners mapping semantic weights across profile parameters
-        if any(w in user_responses for w in ["strike", "force", "instantly", "now", "fist", "attack", "rage", "burning", "overwhelming"]):
-            base_scores["Destructive"] += 2
-            base_scores["Speed"] += 1
-        if any(w in user_responses for w in ["retreat", "analyze", "wait", "back", "think", "shadow", "cold", "calculated", "trap", "plan"]):
-            base_scores["Precision"] += 2
-            base_scores["Range"] += 1
-        if any(w in user_responses for w in ["shatter", "new", "change", "destroy", "break", "complex", "specific"]):
-            base_scores["Dev"] += 2
-            base_scores["Destructive"] += 1
-        if any(w in user_responses for w in ["protect", "order", "keep", "save", "defend", "outlast", "limit", "save everything"]):
-            base_scores["Stamina"] += 2
-            base_scores["Precision"] += 1
-        if any(w in user_responses for w in ["alone", "myself", "control", "solo", "own", "sacrifice"]):
-            base_scores["Speed"] += 1
-            base_scores["Precision"] += 1
-        if any(w in user_responses for w in ["team", "coordinate", "strategy", "group", "share", "risk"]):
-            base_scores["Range"] += 1
-            base_scores["Dev"] += 1
+        # Combat Metrics Scanning
+        if any(w in user_responses for w in ["strike", "force", "instantly", "now", "fist", "attack", "rage", "burning", "overwhelming", "retribution"]):
+            combat_style.append("Close-range powerhouse focused on high destructive power, explosive speed, and direct physical combat execution.")
+            personality_traits.append("Fearless, impulsive, driven by fierce emotional intensity, and prone to open confrontations.")
+        if any(w in user_responses for w in ["retreat", "analyze", "wait", "back", "think", "shadow", "cold", "calculated", "trap", "plan", "flaw", "precision", "patiently"]):
+            combat_style.append("Long-range tactical combatant utilizing meticulous planning, surgical precision, environment manipulation, and defensive traps.")
+            personality_traits.append("Cold, highly calculated, patient under pressure, prioritizing structural observation over impulsive engagements.")
+            
+        # Development / Resolve Scanning
+        if any(w in user_responses for w in ["shatter", "new", "change", "destroy", "break", "complex", "specific", "feared", "nature"]):
+            combat_style.append("Highly dynamic utility capabilities with high development potential, altering environmental parameters or breaking established rules.")
+            personality_traits.append("Ambitious, disruptive, looking to challenge the status quo, obsessed with evolution or total control.")
+        if any(w in user_responses for w in ["protect", "order", "keep", "save", "defend", "outlast", "limit", "save everything", "peace", "revered"]):
+            combat_style.append("Defensive utility designed for immense stamina, resilience, protection, and outlasting opponents in high-stakes duels.")
+            personality_traits.append("Deeply protective core, intensely loyal to allies, selfless, and driven by a strong moral desire to preserve order.")
 
-        # Capture raw user vocabulary to preserve distinct semantic profiles
-        raw_signature = " ".join([msg["content"] for msg in chat_history if msg["role"] == "user"])
+        # Default fallbacks if user inputs are short or neutral
+        if not combat_style:
+            combat_style.append("Balanced adaptable fighter using direct physical capabilities mixed with swift utility maneuvers.")
+        if not personality_traits:
+            personality_traits.append("Resourceful, observant traveler showing deep versatility when adapting to situational shifts.")
 
+        # Cleanly stitch the profile text into the exact contextual framework used by your excel file
         profile_summary = (
-            f"Subject displays a structural configuration emphasizing a Destructive capacity of {base_scores['Destructive']}/5 "
-            f"and tactical Speed of {base_scores['Speed']}/5. Tactical movement profile exhibits Range: {base_scores['Range']}/5, "
-            f"Stamina: {base_scores['Stamina']}/5, Precision: {base_scores['Precision']}/5, and Development Potential: {base_scores['Dev']}/5. "
-            f"\n\nPsychological Vocabulary Signature: {raw_signature}"
+            f"User Personality: {' '.join(personality_traits)}\n"
+            f"Combat Capabilities: {' '.join(combat_style)}\n"
+            f"Raw Signature Intent: {user_responses}"
         )
         return profile_summary
 
