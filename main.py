@@ -1,5 +1,3 @@
-# main.py
-
 import os
 import streamlit as st
 from dotenv import load_dotenv
@@ -15,8 +13,8 @@ from core.visualizer import StandVisualizer
 
 # Page Setup Configurations
 st.set_page_config(page_title="JJBA Stand Oracle", page_icon="🔮", layout="centered")
-st.title("🔮 The Stand Arrow Chambers")
-st.caption("Discover your fighting spirit through RAG-driven vector profiling calculations.")
+st.title("Da Stand Oracle git ★")
+st.caption("Discover your stand by answering some questions!")
 
 # Initialize core states inside server memory trackers
 if "engine" not in st.session_state:
@@ -70,7 +68,7 @@ if st.session_state.stage == "chat":
         
         st.rerun()
 
-# RAG Integration Strategy State Execution Block
+#rag matching sequence with vector database retrieval and LLM synthesis of final reveal narrative
 if st.session_state.stage == "matching":
     with st.spinner("The Stand Arrow is reacting violently to your fighting spirit..."):
         try:
@@ -88,7 +86,7 @@ if st.session_state.stage == "matching":
             st.error(f"💥 Matching Algorithm Error: {str(e)}")
             st.code(traceback.format_exc())  # ← add this line
 
-# Presentation Layer: Structural Display Grid Screen Card
+# final reveal state with visualizer and narrative prose done by openrouter llm
 if st.session_state.stage == "revealed":
     stand = st.session_state.matched_data
     
