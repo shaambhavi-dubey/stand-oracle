@@ -1,22 +1,30 @@
 import os
+import traceback
 import streamlit as st
 from dotenv import load_dotenv
 
-# Force directory calculations to bind environment memory instantly
 current_directory = os.path.dirname(os.path.abspath(__file__))
 env_path = os.path.join(current_directory, ".env")
 load_dotenv(dotenv_path=env_path)
+
+# Auto-build FAISS index if missing (e.g. on Streamlit Cloud first deploy)
+from core.embedder import run_ingestion
+if not os.path.exists(os.path.join(current_directory, "data", "stands_index.index")):
+    try:
+        run_ingestion()
+    except Exception as e:
+        st.error(f"⚠️ Automated ingestion failed: {str(e)}")
 
 from core.retriever import StandRetriever
 from core.engine import OracleEngine
 from core.visualizer import StandVisualizer
 
-# Page Setup Configurations
+# Page config
 st.set_page_config(page_title="JJBA Stand Oracle", page_icon="🔮", layout="centered")
-st.title("Jojo's Bizarre Adventure Stand Oracle ★")
+st.title("JJBA Stand Oracle ★")
 st.caption("Discover your stand ><")
 
-# Initialize core states inside server memory trackers
+# Initialize session state
 if "engine" not in st.session_state:
     try:
         st.session_state.engine = OracleEngine()
@@ -27,51 +35,54 @@ if "engine" not in st.session_state:
         st.session_state.stage = "chat"
     except Exception as e:
         st.error(f"💥 Initialization Error: {str(e)}")
+        st.code(traceback.format_exc())
+        st.session_state.chat_history = []
+        st.session_state.stage = "error"
 
-# Generate initialization question from backend if timeline log is empty
+# Show error state clearly instead of blank screen
+if st.session_state.get("stage") == "error":
+    st.warning("The Oracle failed to initialize. Check the error above, then click below to retry.")
+    if st.button("🔄 Retry"):
+        st.session_state.clear()
+        st.rerun()
+    st.stop()
+
+# Generate first question if chat is empty
 if len(st.session_state.chat_history) == 0:
     with st.spinner("Connecting to the spirit realm..."):
         try:
             initial_question = st.session_state.engine.generate_next_question([])
-            if initial_question is None:
-                initial_question = "When backed into a corner, do you strike back instantly with raw force, or do you retreat to analyze the environment?"
             st.session_state.chat_history.append({"role": "assistant", "content": initial_question})
         except Exception as e:
             st.error(f"💥 Initial Question Error: {str(e)}")
 
-# Presentation Layer: Chat interaction sequence
+# --- CHAT STAGE ---
 if st.session_state.stage == "chat":
-    # Display conversation logs cleanly
     for message in st.session_state.chat_history:
         if message["content"] is not None:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    # Wait for User input
     if user_input := st.chat_input("Speak your mind, traveler..."):
-        # Append user response to log
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.turn_count += 1
         
-        # Process matching after exactly 4 conversational turns have completed
-        if st.session_state.turn_count >= 4:
+        if st.session_state.turn_count >= 6:
             st.session_state.stage = "matching"
         else:
             with st.spinner("The Oracle ponders your words..."):
                 try:
                     next_question = st.session_state.engine.generate_next_question(st.session_state.chat_history)
-                    if next_question is None:
-                        next_question = "The shadows shift as you speak. Tell me more, traveler..."
                     st.session_state.chat_history.append({"role": "assistant", "content": next_question})
                 except Exception as e:
-                    st.error(f"💥 Next Question Generation Error: {str(e)}")
+                    st.error(f"💥 Question Error: {str(e)}")
                     st.session_state.chat_history.append({"role": "assistant", "content": "The cosmic link flickered. Speak again..."})
         
         st.rerun()
 
-# RAG Integration Strategy State Execution Block
+# --- MATCHING STAGE ---
 if st.session_state.stage == "matching":
-    with st.spinner("The Stand Arrow is reacting violently to your fighting spirit..."):
+    with st.spinner("The Stand Arrow is deciphering your soul..."):
         try:
             profile = st.session_state.engine.update_hidden_profile(st.session_state.chat_history)
             top_matches = st.session_state.retriever.query(profile, k=1)
@@ -84,8 +95,9 @@ if st.session_state.stage == "matching":
             st.rerun()
         except Exception as e:
             st.error(f"💥 Matching Algorithm Error: {str(e)}")
+            st.code(traceback.format_exc())
 
-# Presentation Layer: Structural Display Grid Screen Card
+# --- REVEAL STAGE ---
 if st.session_state.stage == "revealed":
     stand = st.session_state.matched_data
     
@@ -106,7 +118,7 @@ if st.session_state.stage == "revealed":
         elif os.path.exists(path_jpg):
             st.image(path_jpg, use_container_width=True)
         else:
-            st.info(f"📸 Asset Missing! Place '{base_name}.jpeg' in your data/user_images/ folder.")
+            st.info(f"📸 Place '{base_name}.jpeg' in data/user_images/")
             
     with col2:
         chart_figure = st.session_state.visualizer.generate_radar_chart(stand)

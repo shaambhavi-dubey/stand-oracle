@@ -1,5 +1,3 @@
-# core/embedder.py
-
 import os
 import pandas as pd
 import numpy as np
@@ -18,22 +16,21 @@ def run_ingestion():
     meta_out = os.path.join(project_root, "data", "stands_metadata.pkl")
     
     if not os.path.exists(excel_path):
-        raise FileNotFoundError(f"Missing spreadsheet target at absolute location: {excel_path}")
+        raise FileNotFoundError(f"Missing spreadsheet at: {excel_path}")
         
-    # Read the file exactly as it is written
     df = pd.read_excel(excel_path).fillna("None")
+    df.columns = df.columns.str.strip()
 
     documents = []
     metadata_records = df.to_dict(orient="records")
     
-    # MATCHING YOUR EXACT HEADERS HERE (Capitalized with spaces)
     for record in metadata_records:
-        doc_string = (
-            f"Stand Name: {record.get('Stand Name', 'Unknown')}\n"
-            f"Combat Capabilities: {record.get('Ability', '')}\n"
-            f"User Personality Resonance: {record.get('User Personality', '')}"
-        )
+        # Only personality — ability adds noise since many stands share combat styles
+        # This ensures personality drives matching more than combat style
+        # Only personality — ability adds noise since many stands share combat styles
+        doc_string = f"User Personality Resonance: {record.get('User Personality', '')}"
         documents.append(doc_string)
+        print(f"  Indexed: {record.get('Stand Name')} — {doc_string[:80]}...")
 
     print("🧠 Generating 384-Dimensional Vectors via all-MiniLM-L6-v2...")
     model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -50,7 +47,7 @@ def run_ingestion():
     with open(meta_out, "wb") as f:
         pickle.dump(metadata_records, f)
         
-    print(f"✨ Success! Cached {index.ntotal} vectors into 'data/' database folder.")
+    print(f"✨ Success! Cached {index.ntotal} vectors into 'data/' folder.")
 
 if __name__ == "__main__":
     run_ingestion()
