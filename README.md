@@ -66,7 +66,7 @@ stand-oracle/
 
 ```bash
 # Clone and enter
-git clone https://github.com/yourusername/stand-oracle.git
+git clone https://github.com/shaambhavi-dubey/stand-oracle.git
 cd stand-oracle
 
 # Create and activate virtual environment
@@ -78,7 +78,8 @@ source jjenv/bin/activate     # Mac/Linux
 pip install -r requirements.txt
 
 # Add your OpenRouter API key
-echo OPENROUTER_API_KEY=your-key-here > .env
+# Create a file called .env in the project root and add this line:
+# OPENROUTER_API_KEY=your-key-here
 
 # Build the FAISS index
 python core/embedder.py
@@ -91,7 +92,7 @@ streamlit run main.py
 
 ## Deployment (Streamlit Community Cloud)
 
-1. Push your repo to GitHub — make sure `.env`, `jjenv/`, `*.index`, and `*.pkl` are in `.gitignore`
+1. Push your repo to GitHub — make sure `.env`, `jjenv/`, `*.index`, and `*.pkl` are in `.gitignore` (Excel, user images, and data folder are committed to the repo)
 2. Go to [share.streamlit.io](https://share.streamlit.io) and connect your repo
 3. Set main file to `main.py`
 4. Go to **Settings → Secrets** and add:
@@ -151,7 +152,7 @@ The questions were also redesigned from 4 combat-focused prompts to 6 questions 
 
 - OpenRouter free tier rate limits can cause the LLM profile call to fall back to keyword matching. The keyword fallback is broad but won't catch every possible phrasing.
 - The `synthesize_dramatic_reveal` LLM call can also time out — the fallback text is used in that case, which is less dramatic but still accurate.
-- User images are not included in the repo. Place `first_last.jpeg` files in `data/user_images/` to enable them.
+- User images are included in the repo under `data/user_images/`. Named as `first_last.jpeg` matching the Stand User's name.
 
 ---
 
